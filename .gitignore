@@ -1,0 +1,26 @@
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+*.session
+
+# Vercel
+.vercel/
+
+# Logs & OS artifacts
+*.log
+.DS_Store
+.idea/
+.vscode/

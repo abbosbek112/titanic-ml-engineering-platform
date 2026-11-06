@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TITANIC: Taqdir Sinovi | AI, GridSearchCV & Tarixiy Simulyator</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Chart.js & html2canvas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=titanic_v2_4k_ultra">
+</head>
+<body>
+    <!-- ==========================================
+         CINEMATIC INTRO ANIMATION OVERLAY
+         ========================================== -->
+    <div id="introOverlay" class="intro-overlay">
+        <!-- Skip Button -->
+        <button id="skipIntroBtn" class="btn-skip-intro">
+            <span>O'tkazib yuborish</span> <i class="fa-solid fa-forward-step"></i>
+        </button>
+
+        <!-- Sky Atmosphere -->
+        <div class="intro-stars"></div>
+        <div class="intro-moon"></div>
+        <div class="intro-fog"></div>
+
+        <!-- Animation Stage -->
+        <div class="intro-stage" id="introStage">
+            
+            <!-- Iceberg Object (rises from mist in center) -->
+            <div class="intro-iceberg" id="introIceberg">
+                <svg viewBox="0 0 160 140" class="iceberg-svg">
+                    <!-- Underwater base -->
+                    <polygon points="15,90 40,135 120,135 145,90" fill="rgba(30, 80, 140, 0.55)" stroke="#38bdf8" stroke-width="1.5" />
+                    <!-- Above water jagged peaks -->
+                    <polygon points="20,90 45,35 70,60 95,15 115,50 140,90" fill="#e0f2fe" stroke="#bae6fd" stroke-width="2" />
+                    <polygon points="45,35 70,60 95,15 80,90" fill="#93c5fd" opacity="0.6" />
+                    <!-- Frost glow -->
+                    <circle cx="95" cy="15" r="4" fill="#ffffff" />
+                </svg>
+                <div class="iceberg-danger-glow"></div>
+            </div>
+
+            <!-- Titanic Ship Container -->
+            <div class="intro-ship-wrapper" id="introShip">
+                <!-- Smoke puffs from funnels -->
+                <div class="funnel-smoke-container">
+                    <span class="smoke s1"></span>
+                    <span class="smoke s2"></span>
+                    <span class="smoke s3"></span>
+                </div>
+
+                <!-- Titanic SVG Structure with separable Bow and Stern halves -->
+                <div class="ship-split-container" id="shipSplitContainer">
+                    <!-- Stern Half (Back Half of Titanic) -->
+                    <div class="ship-half stern-half" id="shipStern">
+                        <svg viewBox="0 0 170 110" class="half-svg">
+                            <!-- Stern Hull -->
+                            <path d="M 5,65 Q 15,92 50,92 L 170,92 L 170,60 L 25,60 Z" fill="#0d1117" stroke="#30363d" stroke-width="1.5" />
+                            <!-- Red bottom keel -->
+                            <path d="M 15,88 Q 20,96 50,96 L 170,96 L 170,92 L 50,92 Z" fill="#b91c1c" />
+                            <!-- White Star flag on stern flag pole -->
+                            <line x1="12" y1="60" x2="12" y2="35" stroke="#94a3b8" stroke-width="1.5" />
+                            <polygon points="12,37 30,43 12,49" fill="#dc2626" />
+                            <!-- Superstructure & Cabins -->
+                            <rect x="55" y="42" width="115" height="18" fill="#f8fafc" rx="2" />
+                            <line x1="55" y1="48" x2="170" y2="48" stroke="#cbd5e1" stroke-width="1" />
+                            <!-- Stern Funnels (Funnels 3 & 4) -->
+                            <rect x="75" y="16" width="16" height="26" fill="#ca8a04" transform="skewX(-6)" />
+                            <rect x="72" y="16" width="16" height="8" fill="#0f172a" transform="skewX(-6)" />
+                            <rect x="125" y="16" width="16" height="26" fill="#ca8a04" transform="skewX(-6)" />
+                            <rect x="122" y="16" width="16" height="8" fill="#0f172a" transform="skewX(-6)" />
+                            <!-- Glowing Portholes -->
+                            <circle cx="70" cy="51" r="2" fill="#fef08a" class="porthole-glow" />
+                            <circle cx="95" cy="51" r="2" fill="#fef08a" class="porthole-glow" />
+                            <circle cx="120" cy="51" r="2" fill="#fef08a" class="porthole-glow" />
+                            <circle cx="145" cy="51" r="2" fill="#fef08a" class="porthole-glow" />
+                            <circle cx="45" cy="73" r="2" fill="#fef08a" />
+                            <circle cx="85" cy="73" r="2" fill="#fef08a" />
+                            <circle cx="125" cy="73" r="2" fill="#fef08a" />
+                        </svg>
+                    </div>
+
+                    <!-- Fracture / Break Crack Line -->
+                    <div class="ship-crack" id="shipCrack"></div>
+
+                    <!-- Bow Half (Front Half of Titanic) -->
+                    <div class="ship-half bow-half" id="shipBow">
+                        <svg viewBox="0 0 170 110" class="half-svg">
+                            <!-- Bow Hull -->
+                            <path d="M 0,60 L 120,60 Q 155,62 165,52 Q 145,88 120,92 L 0,92 Z" fill="#0d1117" stroke="#30363d" stroke-width="1.5" />
+                            <!-- Red bottom keel -->
+                            <path d="M 0,92 L 120,92 Q 135,90 145,85 L 142,96 L 0,96 Z" fill="#b91c1c" />
+                            <!-- Superstructure & Bridge -->
+                            <rect x="0" y="42" width="105" height="18" fill="#f8fafc" rx="2" />
+                            <polygon points="105,42 122,46 122,60 105,60" fill="#f8fafc" />
+                            <!-- Front Funnels (Funnels 1 & 2) -->
+                            <rect x="25" y="16" width="16" height="26" fill="#ca8a04" transform="skewX(-6)" />
+                            <rect x="22" y="16" width="16" height="8" fill="#0f172a" transform="skewX(-6)" />
+                            <rect x="75" y="16" width="16" height="26" fill="#ca8a04" transform="skewX(-6)" />
+                            <rect x="72" y="16" width="16" height="8" fill="#0f172a" transform="skewX(-6)" />
+                            <!-- Forward Mast with Crow's Nest -->
+                            <line x1="130" y1="60" x2="130" y2="18" stroke="#94a3b8" stroke-width="2" />
+                            <rect x="126" y="28" width="8" height="6" fill="#475569" />
+                            <!-- Glowing Portholes -->
+                            <circle cx="20" cy="51" r="2" fill="#fef08a" class="porthole-glow" />
+                            <circle cx="50" cy="51" r="2" fill="#fef08a" class="porthole-glow" />
+                            <circle cx="80" cy="51" r="2" fill="#fef08a" class="porthole-glow" />
+                            <circle cx="105" cy="53" r="2" fill="#fef08a" class="porthole-glow" />
+                            <circle cx="30" cy="73" r="2" fill="#fef08a" />
+                            <circle cx="70" cy="73" r="2" fill="#fef08a" />
+                            <circle cx="110" cy="73" r="2" fill="#fef08a" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Collision Sparks -->
+                <div class="collision-sparks" id="collisionSparks">
+                    <span></span><span></span><span></span><span></span><span></span>
+                </div>
+            </div>
+
+            <!-- Ocean Water & Splashes -->
+            <div class="intro-ocean">
+                <div class="intro-wave wave-front"></div>
+                <div class="intro-wave wave-back"></div>
+                <div class="water-splash" id="waterSplash"></div>
+            </div>
+        </div>
+
+        <!-- Cinematic Caption Narrator -->
+        <div class="intro-caption-box">
+            <h2 id="introMainText" class="intro-main-text">1912-yil 14-aprel... Shimoliy Atlantika</h2>
+            <p id="introSubText" class="intro-sub-text">"Cho'kmas" kema Nyu-York tomon suzib bormoqda...</p>
+        </div>
+    </div>
+
+    <!-- Background Atmosphere -->
+    <div class="stars-overlay"></div>
+    <div class="ocean-mist"></div>
+
+    <!-- Navigation Bar -->
+    <header class="site-header">
+        <div class="header-container">
+            <div class="brand">
+                <i class="fa-solid fa-anchor gold-icon"></i>
+                <div class="brand-text">
+                    <span class="company-name">WHITE STAR LINE</span>
+                    <span class="ship-name">R.M.S. TITANIC • 1912</span>
+                </div>
+            </div>
+            <nav class="nav-links">
+                <a href="#simulator" class="nav-item active"><i class="fa-solid fa-compass"></i> Taqdir Simulyatori</a>
+                <a href="#deck-map" class="nav-item"><i class="fa-solid fa-layer-group"></i> Paluba Xaritasi</a>
+                <a href="#ai-lab" class="nav-item"><i class="fa-solid fa-brain"></i> GridSearchCV Tahlili</a>
+                <a href="#history" class="nav-item"><i class="fa-solid fa-landmark"></i> Tarixiy Faktlar</a>
+            </nav>
+            <div class="header-actions">
+                <button id="replayIntroBtn" class="btn-replay-intro" title="Kirish kinofilmini qayta ko'rish">
+                    <i class="fa-solid fa-film"></i> Intro
+                </button>
+                <button id="soundToggle" class="btn-sound" title="Okean muhitini yoqish/o'chirish">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-bg-media">
+            <img src="{{ url_for('static', filename='images/titanic_hero_4k.jpg') }}" alt="RMS Titanic 1912 4K" class="hero-4k-img">
+            <div class="hero-4k-gradient-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <span class="badge-vintage"><i class="fa-regular fa-clock"></i> 10-APREL, 1912-YIL — SOUTHAMPTON TO NEW YORK</span>
+            <h1 class="hero-title">Titanicda Omon Qolish Ehtimolingiz Qancha?</h1>
+            <p class="hero-subtitle">
+                O'zingizni afsonaviy Titanic yo'lovchisi deb tasavvur qiling. 
+                <strong>GridSearchCV</strong> orqali saralangan Machine Learning algoritmlari, 
+                <strong>What-If</strong> tahlili va 1912-yilgi haqiqiy tarixiy yo'lovchilar ma'lumotlari bilan taqdiringizni sinab ko'ring.
+            </p>
+            <div class="hero-badges-row">
+                <span class="hero-chip"><i class="fa-solid fa-ship gold-icon"></i> 46,328 Tonna</span>
+                <span class="hero-chip"><i class="fa-solid fa-users gold-icon"></i> 2,224 Yo'lovchi va Ekipaj</span>
+                <span class="hero-chip"><i class="fa-solid fa-life-ring gold-icon"></i> 20 ta Qutqaruv Qayig'i</span>
+                <span class="hero-chip highlight"><i class="fa-solid fa-camera gold-icon"></i> 4K Muzey Arxiv Tasvirlari</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Simulator Section -->
+    <section id="simulator" class="simulator-section">
+        <div class="container-grid">
+            
+            <!-- Left: Passenger Registration Form -->
+            <div class="glass-card form-card">
+                <div class="card-header">
+                    <div class="header-title-box">
+                        <i class="fa-solid fa-id-card gold-icon"></i>
+                        <h2>Yo'lovchi Ro'yxatdan O'tish</h2>
+                    </div>
+                    <!-- Live Model Switcher -->
+                    <div class="model-picker-wrap">
+                        <label for="modelSelect"><i class="fa-solid fa-microchip"></i> Model:</label>
+                        <select id="modelSelect" class="model-select-pill">
+                            <option value="GridSearchCV (Eng Yaxshi Model)" selected>⭐ GridSearchCV (Eng Yaxshi Model - 84.9%)</option>
+                            <option value="Logistic Regression">🥇 Logistic Regression (84.9%)</option>
+                            <option value="Support Vector Machine (SVC)">⚡ SVC (84.4%)</option>
+                            <option value="Random Forest">🌲 Random Forest (80.5%)</option>
+                            <option value="Gradient Boosting">📈 Gradient Boosting (78.8%)</option>
+                            <option value="K-Nearest Neighbors (KNN)">🎯 KNN (78.8%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <form id="passengerForm" class="passenger-form">
+                    <!-- Name & Honorific -->
+                    <div class="form-row">
+                        <div class="form-group flex-2">
+                            <label for="passengerName"><i class="fa-solid fa-user"></i> Ism va Familiyangiz</label>
+                            <input type="text" id="passengerName" placeholder="Masalan: Abbos Aliyev" value="Abbos Aliyev" required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="passengerTitle"><i class="fa-solid fa-crown"></i> Murojaat (Titul)</label>
+                            <select id="passengerTitle">
+                                <option value="Mr">Janob (Mr.)</option>
+                                <option value="Mrs">Xonim (Mrs.)</option>
+                                <option value="Miss">Madmuazel (Miss)</option>
+                                <option value="Master">Yigit/Bola (Master)</option>
+                                <option value="Dr">Doktor (Dr.)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Gender & Age -->
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label><i class="fa-solid fa-venus-mars"></i> Jinsingiz</label>
+                            <div class="gender-selector">
+                                <label class="gender-btn active" id="genderMaleLabel">
+                                    <input type="radio" name="sex" value="male" checked>
+                                    <i class="fa-solid fa-mars"></i> Erkak
+                                </label>
+                                <label class="gender-btn" id="genderFemaleLabel">
+                                    <input type="radio" name="sex" value="female">
+                                    <i class="fa-solid fa-venus"></i> Ayol
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group flex-1">
+                            <label for="passengerAge"><i class="fa-solid fa-cake-candles"></i> Yoshingiz: <span id="ageDisplay" class="gold-badge">24</span></label>
+                            <input type="range" id="passengerAge" min="1" max="80" value="24" class="slider-input">
+                            <div class="quick-age-tags">
+                                <button type="button" class="age-tag" data-age="5">Go'dak (5)</button>
+                                <button type="button" class="age-tag" data-age="16">O'smir (16)</button>
+                                <button type="button" class="age-tag active" data-age="24">Yosh (24)</button>
+                                <button type="button" class="age-tag" data-age="55">Katta (55)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Passenger Class -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-gem"></i> Qaysi Toifada (Klassda) Sayohat Qilasiz?</label>
+                        <div class="class-cards-grid">
+                            <label class="class-card active" data-class="1" data-fare="85.0">
+                                <input type="radio" name="pclass" value="1" checked>
+                                <div class="class-badge">1-KLASS</div>
+                                <div class="class-title">Lyuks Paluba</div>
+                                <p class="class-desc">Boy aristokratlar, yuqori qayiq palubasiga eng yaqin joylashuv.</p>
+                                <span class="class-fare">O'rtacha £85</span>
+                            </label>
+
+                            <label class="class-card" data-class="2" data-fare="22.0">
+                                <input type="radio" name="pclass" value="2">
+                                <div class="class-badge">2-KLASS</div>
+                                <div class="class-title">O'rta Qatlam</div>
+                                <p class="class-desc">Ziyolilar, savdogarlar, qulay sharoit va alohida oshxona.</p>
+                                <span class="class-fare">O'rtacha £22</span>
+                            </label>
+
+                            <label class="class-card" data-class="3" data-fare="12.0">
+                                <input type="radio" name="pclass" value="3">
+                                <div class="class-badge">3-KLASS</div>
+                                <div class="class-title">Quyi Paluba</div>
+                                <p class="class-desc">Muhojirlar (Steerage), eng pastki qavat va cheklangan imkoniyat.</p>
+                                <span class="class-fare">O'rtacha £12</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- ========================================================
+                         REAL-TIME INTERACTIVE TITANIC VESSEL CUTAWAY VISUALIZER
+                         (AUTHENTIC SHIP SILHOUETTE PROFILE)
+                         ======================================================== -->
+                    <div class="vessel-visualizer-container">
+                        <div class="vessel-vis-header">
+                            <div class="vessel-vis-title">
+                                <i class="fa-solid fa-ship gold-icon"></i>
+                                <span>Bortdagi Haqiqiy O'rningiz (Titanic Kema Kesimi):</span>
+                            </div>
+                            <span class="vessel-risk-tag" id="vesselRiskTag">🟢 Yuqori Qayiq Palubasi</span>
+                        </div>
+
+                        <!-- Authentic Titanic Ship Silhouette Diagram -->
+                        <div class="ship-svg-canvas-box">
+                            <svg viewBox="0 0 700 230" class="titanic-ship-svg" id="titanicShipSvg">
+                                <defs>
+                                    <linearGradient id="oceanSvgGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="rgba(2, 132, 199, 0.35)" />
+                                        <stop offset="100%" stop-color="rgba(5, 11, 24, 0.95)" />
+                                    </linearGradient>
+                                    <filter id="goldGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feGaussianBlur stdDeviation="3" result="blur" />
+                                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                    </filter>
+                                </defs>
+
+                                <!-- Underwater Ocean Backdrop -->
+                                <rect x="0" y="156" width="700" height="74" fill="url(#oceanSvgGrad)" />
+                                
+                                <!-- Waterline (Suv sathi) -->
+                                <line x1="0" y1="156" x2="700" y2="156" stroke="#38bdf8" stroke-dasharray="6,4" stroke-width="1.5" />
+                                <text x="18" y="151" fill="#38bdf8" font-size="9" font-family="'Space Mono', monospace" letter-spacing="1">SUVSATHI (WATERLINE) ~~~~~~~~~~</text>
+
+                                <!-- Titanic Ship Rigging & Masts -->
+                                <!-- Stern Mast with White Star Pennant -->
+                                <line x1="105" y1="110" x2="105" y2="35" stroke="#94a3b8" stroke-width="1.5" />
+                                <polygon points="105,37 125,43 105,49" fill="#dc2626" />
+                                <!-- Forward Mast with Crow's Nest -->
+                                <line x1="575" y1="95" x2="575" y2="28" stroke="#94a3b8" stroke-width="1.5" />
+                                <rect x="571" y="44" width="8" height="6" fill="#475569" />
+                                <!-- Rigging Stays -->
+                                <line x1="105" y1="40" x2="50" y2="115" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
+                                <line x1="105" y1="40" x2="200" y2="78" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
+                                <line x1="575" y1="35" x2="480" y2="78" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
+                                <line x1="575" y1="35" x2="655" y2="92" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
+
+                                <!-- 4 Iconic Tilted Funnels with Smoke -->
+                                <g class="svg-funnels-group" transform="skewX(-6)">
+                                    <!-- Funnel 1 -->
+                                    <rect x="225" y="28" width="18" height="50" fill="#ca8a04" stroke="#a16207" stroke-width="0.8" />
+                                    <rect x="223" y="28" width="18" height="14" fill="#0f172a" />
+                                    <!-- Funnel 2 -->
+                                    <rect x="305" y="28" width="18" height="50" fill="#ca8a04" stroke="#a16207" stroke-width="0.8" />
+                                    <rect x="303" y="28" width="18" height="14" fill="#0f172a" />
+                                    <!-- Funnel 3 -->
+                                    <rect x="385" y="28" width="18" height="50" fill="#ca8a04" stroke="#a16207" stroke-width="0.8" />
+                                    <rect x="383" y="28" width="18" height="14" fill="#0f172a" />
+                                    <!-- Funnel 4 -->
+                                    <rect x="465" y="28" width="18" height="50" fill="#ca8a04" stroke="#a16207" stroke-width="0.8" />
+                                    <rect x="463" y="28" width="18" height="14" fill="#0f172a" />
+                                </g>
+
+                                <!-- Titanic Outer Hull (Black Top, Red Keel) -->
+                                <!-- Full Ship Hull Path -->
+                                <path d="M 50,115 Q 25,130 30,156 Q 35,195 75,200 L 560,200 Q 615,195 650,120 Q 665,95 670,88 L 650,90 Q 600,95 560,98 L 50,115 Z" fill="#090e1a" stroke="#d4af37" stroke-width="1.8" />
+                                <!-- Red Keel Bottom (Below Waterline) -->
+                                <path d="M 30,156 Q 35,195 75,200 L 560,200 Q 615,195 635,156 Z" fill="#7f1d1d" opacity="0.8" />
+                                
+                                <!-- Superstructure (White Upper Decks) -->
+                                <path d="M 130,115 L 140,76 L 535,76 L 545,115 Z" fill="#1e293b" stroke="rgba(255,255,255,0.25)" stroke-width="1" />
+                                <!-- Wheelhouse Bridge -->
+                                <rect x="500" y="66" width="35" height="12" fill="#334155" rx="2" />
+                                <circle cx="530" cy="72" r="2.5" fill="#38bdf8" />
+
+                                <!-- Boat Deck Lifeboats Lined Up Along the Top (Y=72) -->
+                                <g class="svg-lifeboats-line">
+                                    <rect x="155" y="72" width="16" height="5" rx="2" fill="#e2e8f0" stroke="#0284c7" stroke-width="0.8" />
+                                    <rect x="180" y="72" width="16" height="5" rx="2" fill="#e2e8f0" stroke="#0284c7" stroke-width="0.8" />
+                                    <rect x="235" y="72" width="16" height="5" rx="2" fill="#e2e8f0" stroke="#0284c7" stroke-width="0.8" />
+                                    <rect x="260" y="72" width="16" height="5" rx="2" fill="#e2e8f0" stroke="#0284c7" stroke-width="0.8" />
+                                    <rect x="315" y="72" width="16" height="5" rx="2" fill="#e2e8f0" stroke="#0284c7" stroke-width="0.8" />
+                                    <rect x="340" y="72" width="16" height="5" rx="2" fill="#e2e8f0" stroke="#0284c7" stroke-width="0.8" />
+                                    <rect x="395" y="72" width="16" height="5" rx="2" fill="#e2e8f0" stroke="#0284c7" stroke-width="0.8" />
+                                    <rect x="420" y="72" width="16" height="5" rx="2" fill="#e2e8f0" stroke="#0284c7" stroke-width="0.8" />
+                                    <rect x="475" y="72" width="16" height="5" rx="2" fill="#e2e8f0" stroke="#0284c7" stroke-width="0.8" />
+                                    <text x="145" y="68" fill="#94a3b8" font-size="8" font-family="'Cinzel', serif">BOAT DECK (QAYIQLAR)</text>
+                                </g>
+
+                                <!-- ===============================================
+                                     INTERACTIVE SHIP COMPARTMENT TIERS (CUTAWAYS)
+                                     =============================================== -->
+                                <!-- 1-KLASS COMPARTMENT (DECK A-C) -->
+                                <g id="shipTier1Group" class="ship-comp-group active-tier-group" data-class="1">
+                                    <rect id="shipTier1Rect" x="240" y="82" width="260" height="30" rx="4" class="ship-tier-rect tier-1-rect" />
+                                    <!-- Stateroom Porthole Windows -->
+                                    <circle cx="260" cy="97" r="2.5" fill="#fef08a" opacity="0.9" />
+                                    <circle cx="290" cy="97" r="2.5" fill="#fef08a" opacity="0.9" />
+                                    <circle cx="320" cy="97" r="2.5" fill="#fef08a" opacity="0.9" />
+                                    <circle cx="350" cy="97" r="2.5" fill="#fef08a" opacity="0.9" />
+                                    <circle cx="380" cy="97" r="2.5" fill="#fef08a" opacity="0.9" />
+                                    <circle cx="410" cy="97" r="2.5" fill="#fef08a" opacity="0.9" />
+                                    <circle cx="440" cy="97" r="2.5" fill="#fef08a" opacity="0.9" />
+                                    <circle cx="470" cy="97" r="2.5" fill="#fef08a" opacity="0.9" />
+                                    <text x="250" y="94" class="ship-tier-label label-1">1-KLASS (DECK A-C)</text>
+                                    <text x="375" y="105" class="ship-tier-subtext">Grand Staircase • Lyuks Kayutalar</text>
+                                </g>
+
+                                <!-- 2-KLASS COMPARTMENT (DECK D-E) -->
+                                <g id="shipTier2Group" class="ship-comp-group" data-class="2">
+                                    <rect id="shipTier2Rect" x="140" y="117" width="370" height="34" rx="4" class="ship-tier-rect tier-2-rect" />
+                                    <circle cx="160" cy="134" r="2.5" fill="#cbd5e1" opacity="0.7" />
+                                    <circle cx="200" cy="134" r="2.5" fill="#cbd5e1" opacity="0.7" />
+                                    <circle cx="240" cy="134" r="2.5" fill="#cbd5e1" opacity="0.7" />
+                                    <circle cx="280" cy="134" r="2.5" fill="#cbd5e1" opacity="0.7" />
+                                    <circle cx="320" cy="134" r="2.5" fill="#cbd5e1" opacity="0.7" />
+                                    <circle cx="360" cy="134" r="2.5" fill="#cbd5e1" opacity="0.7" />
+                                    <circle cx="400" cy="134" r="2.5" fill="#cbd5e1" opacity="0.7" />
+                                    <circle cx="440" cy="134" r="2.5" fill="#cbd5e1" opacity="0.7" />
+                                    <circle cx="480" cy="134" r="2.5" fill="#cbd5e1" opacity="0.7" />
+                                    <text x="150" y="130" class="ship-tier-label label-2">2-KLASS (DECK D-E)</text>
+                                    <text x="265" y="142" class="ship-tier-subtext">Kutubxona • O'rta Sinf Zallari</text>
+                                </g>
+
+                                <!-- 3-KLASS & BOILERS COMPARTMENT (DECK F-G - BELOW WATERLINE) -->
+                                <g id="shipTier3Group" class="ship-comp-group" data-class="3">
+                                    <path id="shipTier3Rect" d="M 55,160 L 595,160 Q 580,192 535,195 L 85,195 Q 60,190 55,160 Z" class="ship-tier-rect tier-3-rect" />
+                                    <text x="75" y="174" class="ship-tier-label label-3">3-KLASS (DECK F-G) & MASHINA BO'LIMI</text>
+                                    <text x="75" y="188" class="ship-tier-subtext sub-danger">⚠️ Steerage • Qozonxonalar • SUV SATHIDAN PASTDA!</text>
+                                </g>
+
+                                <!-- DYNAMIC PASSENGER PIN INSIDE SHIP -->
+                                <g id="svgPassengerMarker" transform="translate(370, 97)" class="svg-passenger-pin">
+                                    <!-- Pulsing Radar Wave -->
+                                    <circle cx="0" cy="0" r="16" class="pin-radar-ring" />
+                                    <!-- Badge Center -->
+                                    <circle cx="0" cy="0" r="10" class="pin-center-circle" />
+                                    <!-- Dynamic Avatar Icon -->
+                                    <text id="svgMarkerIcon" x="0" y="3.5" text-anchor="middle" font-size="10" fill="#070c18" font-family="'Font Awesome 6 Free', sans-serif" font-weight="900">&#xf183;</text>
+                                    
+                                    <!-- Floating Tooltip Box -->
+                                    <g id="svgMarkerTooltip" transform="translate(16, -14)">
+                                        <rect x="0" y="0" width="140" height="34" rx="4" class="svg-tooltip-box" />
+                                        <text id="svgTooltipName" x="8" y="14" class="svg-tooltip-name">Abbos Aliyev</text>
+                                        <text id="svgTooltipDeck" x="8" y="27" class="svg-tooltip-deck">1-Klass • Deck C</text>
+                                    </g>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- Real-time Stats below the ship -->
+                        <div class="vessel-evac-stats" id="vesselEvacStats">
+                            <span class="stat-pill"><i class="fa-solid fa-person-running"></i> Evakuatsiya masofasi: <strong id="evacDistance">~15 metr</strong></span>
+                            <span class="stat-pill"><i class="fa-solid fa-hourglass-half"></i> Chiqish vaqti: <strong id="evacTime">~2 daqiqa</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Family & Companions -->
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="sibspInput">
+                                <i class="fa-solid fa-people-arrows"></i> Turmush o'rtoq / Aka-uka / Opa-singil
+                            </label>
+                            <input type="number" id="sibspInput" min="0" max="8" value="0" class="number-input">
+                        </div>
+
+                        <div class="form-group flex-1">
+                            <label for="parchInput">
+                                <i class="fa-solid fa-person-breastfeeding"></i> Ota-ona / Farzandlar soni
+                            </label>
+                            <input type="number" id="parchInput" min="0" max="8" value="0" class="number-input">
+                        </div>
+                    </div>
+
+                    <!-- Port of Embarkation & Cabin -->
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="embarkedSelect"><i class="fa-solid fa-ship"></i> Chiqish Porti</label>
+                            <select id="embarkedSelect">
+                                <option value="S">Southampton (Angliya)</option>
+                                <option value="C">Cherbourg (Fransiya)</option>
+                                <option value="Q">Queenstown (Irlandiya)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group flex-1">
+                            <label for="cabinSelect"><i class="fa-solid fa-door-closed"></i> Kayuta Joylashuvi</label>
+                            <select id="cabinSelect">
+                                <option value="C">C Paluba (Lyuks markazi)</option>
+                                <option value="B">B Paluba (Yuqori qavat)</option>
+                                <option value="D">D Paluba (O'rta qavat)</option>
+                                <option value="E">E Paluba (Standart)</option>
+                                <option value="">Noma'lum / Quyi bo'lma</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submitBtn" class="btn-royal">
+                        <i class="fa-solid fa-compass fa-spin-hover"></i> TAQDIRIMNI HISOBLASH
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right: Interactive White Star Line Boarding Pass & Result Screen -->
+            <div class="glass-card result-container" id="resultCardContainer">
+                <!-- Ticket Preview State -->
+                <div id="ticketWrapper">
+                    <div id="ticketPreviewCard" class="vintage-ticket">
+                        <div class="ticket-watermark">WHITE STAR LINE</div>
+                        <div class="ticket-header">
+                            <div class="ticket-brand">
+                                <span class="wsl-logo"><i class="fa-solid fa-flag"></i> WHITE STAR LINE</span>
+                                <span class="wsl-sub">ROYAL & UNITED STATES MAIL STEAMER</span>
+                            </div>
+                            <div class="ticket-serial">
+                                <span class="ticket-badge" id="ticketClassBadge">FIRST CLASS</span>
+                                <span class="ticket-no" id="ticketNo">No. WSL-48291</span>
+                            </div>
+                        </div>
+
+                        <div class="ticket-body">
+                            <div class="ticket-col">
+                                <span class="t-label">PASSENGER NAME / YO'LOVCHI:</span>
+                                <span class="t-value" id="ticketName">Abbos Aliyev</span>
+                            </div>
+                            <div class="ticket-col">
+                                <span class="t-label">VOYAGE / SAYOHAT:</span>
+                                <span class="t-value">Southampton &rarr; New York</span>
+                            </div>
+                        </div>
+
+                        <div class="ticket-grid">
+                            <div class="t-meta">
+                                <span class="t-label">SAILING DATE:</span>
+                                <span class="t-val-sm">10 April, 1912</span>
+                            </div>
+                            <div class="t-meta">
+                                <span class="t-label">EMBARKED PORT:</span>
+                                <span class="t-val-sm" id="ticketPort">Southampton</span>
+                            </div>
+                            <div class="t-meta">
+                                <span class="t-label">CABIN / DECK:</span>
+                                <span class="t-val-sm" id="ticketCabin">C Deck</span>
+                            </div>
+                            <div class="t-meta">
+                                <span class="t-label">FARE PAID:</span>
+                                <span class="t-val-sm" id="ticketFare">£85.00</span>
+                            </div>
+                        </div>
+
+                        <div class="ticket-footer">
+                            <div class="barcode-box">
+                                <div class="mock-barcode"></div>
+                                <span class="barcode-num">||||||| | ||||| |||| || |</span>
+                            </div>
+                            <div class="official-stamp">
+                                <span>RMS TITANIC</span>
+                                <span class="stamp-sub">PASSED & INSPECTED</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Download ticket button -->
+                <div class="ticket-download-bar" id="ticketDownloadBar">
+                    <button type="button" id="downloadTicketPngBtn" class="btn-ticket-download">
+                        <i class="fa-solid fa-camera"></i> Chiptani Rasm Qilib Saqlash (PNG)
+                    </button>
+                </div>
+
+                <!-- Calculation Loading State (hidden initially) -->
+                <div id="loadingState" class="calculation-loader hidden">
+                    <div class="radar-spinner">
+                        <div class="radar-hand"></div>
+                    </div>
+                    <h3 class="loading-title">1912-yil 14-aprel, 23:40...</h3>
+                    <p class="loading-desc">Muztog' bilan to'qnashuv! Taqdiringiz sun'iy intellekt orqali modellashtirilmoqda...</p>
+                </div>
+
+                <!-- Final Prediction Result Card (hidden initially) -->
+                <div id="resultState" class="prediction-result hidden">
+                    <!-- Frost Elements for Sub-Zero Frozen Titanic Effect -->
+                    <div class="frost-vignette-overlay" id="frostOverlay"></div>
+                    <div class="frozen-icicles-bar" id="frozenIciclesBar">
+                        <svg class="icicles-svg" viewBox="0 0 600 45" preserveAspectRatio="none">
+                            <path d="M0,0 L600,0 L600,10 L585,3 L565,30 L550,6 L530,40 L515,9 L495,24 L480,5 L460,42 L440,7 L420,20 L400,45 L385,5 L365,32 L350,8 L330,25 L315,4 L295,38 L280,7 L260,22 L240,43 L225,5 L205,28 L190,6 L170,36 L155,8 L135,24 L120,4 L100,40 L85,7 L65,22 L45,42 L30,5 L15,26 L0,6 Z" fill="url(#icicleGrad)" filter="url(#icicleGlow)" />
+                            <defs>
+                                <linearGradient id="icicleGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                                    <stop offset="35%" stop-color="#bae6fd" stop-opacity="0.85" />
+                                    <stop offset="75%" stop-color="#38bdf8" stop-opacity="0.6" />
+                                    <stop offset="100%" stop-color="#0284c7" stop-opacity="0.05" />
+                                </linearGradient>
+                                <filter id="icicleGlow" x="-10%" y="-10%" width="120%" height="120%">
+                                    <feGaussianBlur stdDeviation="1.5" result="glow" />
+                                    <feComposite in="SourceGraphic" in2="glow" operator="over" />
+                                </filter>
+                            </defs>
+                        </svg>
+                    </div>
+
+                    <!-- Frozen Atlantic Sub-Zero Temperature Warning Banner -->
+                    <div class="subzero-banner hidden" id="subZeroBanner">
+                        <div class="subzero-icon-box">
+                            <i class="fa-solid fa-snowflake fa-spin-pulse"></i>
+                        </div>
+                        <div class="subzero-text-box">
+                            <div class="subzero-headline">ATLANTIKA OKEANI SUV HARORATI: <strong>-2.2°C</strong></div>
+                            <div class="subzero-desc">Gipotermiya xavfi: 10–15 daqiqa ichida tananing to'liq muzlashi va cho'kish!</div>
+                        </div>
+                    </div>
+
+                    <!-- Warm Rescue Banner (Visible when survived) -->
+                    <div class="rescue-banner hidden" id="rescueBanner">
+                        <div class="rescue-icon-box">
+                            <i class="fa-solid fa-life-ring"></i>
+                        </div>
+                        <div class="rescue-text-box">
+                            <div class="rescue-headline">RMS CARPATHIA QUTQARUV KEMASI</div>
+                            <div class="rescue-desc">Qutqaruv qayig'iga muvaffaqiyatli chiqdingiz va omon qoldingiz!</div>
+                        </div>
+                    </div>
+
+                    <div class="result-header">
+                        <span class="result-tag" id="resultStatusTag">NATIJA ANIQLANDI</span>
+                        <h2 id="resultTitle" class="verdict-heading">Tirik Qoldingiz!</h2>
+                    </div>
+
+                    <!-- Circular Survival Meter -->
+                    <div class="survival-gauge-wrapper">
+                        <div class="gauge-circle" id="gaugeCircle">
+                            <div class="gauge-inner">
+                                <span class="gauge-value" id="survivalProbText">82.5%</span>
+                                <span class="gauge-label">Omon Qolish Ehtimoli</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GridSearchCV Champion Badge -->
+                    <div class="gridsearch-card-callout" id="gridsearchCallout">
+                        <div class="gs-callout-icon"><i class="fa-solid fa-brain gold-icon"></i></div>
+                        <div class="gs-callout-text">
+                            <div class="gs-callout-header">
+                                <span class="gs-tag">GRIDSEARCHCV ENG YAXSHI MODEL</span>
+                                <span class="gs-winner-name" id="gsWinnerName">G'olib: Logistic Regression (84.92%)</span>
+                            </div>
+                            <span class="gs-params-note" id="gsParamsNote">Optimal giperparametrlar: C=1.0, solver='lbfgs' (5-Fold Stratified CV)</span>
+                        </div>
+                    </div>
+
+                    <!-- Multi-Model Consensus / Votes Bar -->
+                    <div class="models-votes-card">
+                        <div class="votes-header">
+                            <i class="fa-solid fa-check-double gold-icon"></i>
+                            <span>5 ta Modelning Xulosasi:</span>
+                        </div>
+                        <div class="votes-grid" id="votesGrid">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Dramatic Narrative Story -->
+                    <div class="narrative-box">
+                        <i class="fa-solid fa-quote-left quote-icon"></i>
+                        <p id="narrativeStory">Kema cho'kayotgan paytda siz qutqaruv qayig'iga chiqishga muvaffaq bo'ldingiz.</p>
+                    </div>
+
+                    <!-- Interactive Result Tabs -->
+                    <div class="result-tabs-nav">
+                        <button type="button" class="res-tab-btn active" data-tab="factorsTab">
+                            <i class="fa-solid fa-scale-balanced"></i> Taqdir Tarozisi (XAI)
+                        </button>
+                        <button type="button" class="res-tab-btn" data-tab="dossierTab">
+                            <i class="fa-solid fa-id-card-clip"></i> 1912 Guvohnomasi
+                        </button>
+                        <button type="button" class="res-tab-btn" data-tab="whatIfTab">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> What-If
+                        </button>
+                        <button type="button" class="res-tab-btn" data-tab="twinTab">
+                            <i class="fa-solid fa-user-astronaut"></i> Tarixiy Egizak
+                        </button>
+                        <button type="button" class="res-tab-btn" data-tab="timelineTab">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Xronologiya
+                        </button>
+                        <button type="button" class="res-tab-btn" data-tab="telegramTab">
+                            <i class="fa-solid fa-tower-broadcast"></i> Marconi
+                        </button>
+                    </div>
+
+                    <!-- Tab 1: Factors Impact Analysis & Interactive XAI Balance Scale -->
+                    <div id="factorsTab" class="res-tab-pane active">
+                        <div class="xai-scale-card">
+                            <div class="scale-card-header">
+                                <div class="scale-title">
+                                    <i class="fa-solid fa-scale-balanced gold-icon"></i>
+                                    <span>Taqdir Tarozisi (Sun'iy Intellekt Tushuntirishi — XAI)</span>
+                                </div>
+                                <span class="scale-tag" id="scaleBalanceTag">⚖️ Hisoblanmoqda...</span>
+                            </div>
+
+                            <!-- Interactive SVG Brass Balance Scale -->
+                            <div class="brass-scale-container">
+                                <svg viewBox="0 0 500 230" class="brass-scale-svg" id="brassScaleSvg">
+                                    <defs>
+                                        <linearGradient id="brassGrad" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#fef08a" />
+                                            <stop offset="35%" stop-color="#eab308" />
+                                            <stop offset="70%" stop-color="#a16207" />
+                                            <stop offset="100%" stop-color="#ca8a04" />
+                                        </linearGradient>
+                                        <linearGradient id="ironGrad" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#94a3b8" />
+                                            <stop offset="50%" stop-color="#475569" />
+                                            <stop offset="100%" stop-color="#1e293b" />
+                                        </linearGradient>
+                                        <filter id="scaleGlow">
+                                            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.6)" />
+                                        </filter>
+                                    </defs>
+
+                                    <!-- Pedestal Base -->
+                                    <path d="M 205,225 L 295,225 L 275,200 L 225,200 Z" fill="url(#brassGrad)" filter="url(#scaleGlow)" />
+                                    <!-- Center Brass Column -->
+                                    <rect x="246" y="55" width="8" height="148" fill="url(#brassGrad)" rx="2" />
+                                    <!-- Center Pivot Crown -->
+                                    <circle cx="250" cy="55" r="14" fill="url(#brassGrad)" filter="url(#scaleGlow)" />
+                                    <circle cx="250" cy="55" r="5" fill="#0b1329" />
+
+                                    <!-- Rotating Scale Beam Assembly (Rotates dynamically via JS) -->
+                                    <g id="scaleBeamAssembly" transform="rotate(0, 250, 55)" class="scale-beam-pivot">
+                                        <!-- Indicator Needle -->
+                                        <polygon points="248,55 252,55 250,18" fill="#ef4444" />
+                                        <!-- Main Horizontal Beam -->
+                                        <rect x="75" y="52" width="350" height="6" rx="3" fill="url(#brassGrad)" />
+                                        <circle cx="90" cy="55" r="4.5" fill="url(#brassGrad)" />
+                                        <circle cx="410" cy="55" r="4.5" fill="url(#brassGrad)" />
+
+                                        <!-- Left Pan (Najot Omillari - Positive) -->
+                                        <g id="leftPanGroup" transform="translate(90, 55)">
+                                            <line x1="0" y1="0" x2="-32" y2="65" stroke="#ca8a04" stroke-width="1.2" stroke-dasharray="2,2" />
+                                            <line x1="0" y1="0" x2="32" y2="65" stroke="#ca8a04" stroke-width="1.2" stroke-dasharray="2,2" />
+                                            <path d="M -40,65 Q 0,80 40,65 Z" fill="url(#brassGrad)" stroke="#854d0e" stroke-width="1" />
+                                            <circle cx="0" cy="58" r="14" fill="rgba(16, 185, 129, 0.25)" stroke="#10b981" stroke-width="1.5" />
+                                            <text x="0" y="62" text-anchor="middle" font-size="11" font-weight="900" fill="#34d399">🛟</text>
+                                            <text x="0" y="94" text-anchor="middle" font-size="9" font-weight="700" fill="#34d399" font-family="'Cinzel', serif">NAJOT KUCHI</text>
+                                            <text id="leftPanScoreText" x="0" y="106" text-anchor="middle" font-size="11" font-weight="800" fill="#10b981" font-family="'Space Mono', monospace">+0%</text>
+                                        </g>
+
+                                        <!-- Right Pan (Halokat Xavfi - Negative) -->
+                                        <g id="rightPanGroup" transform="translate(410, 55)">
+                                            <line x1="0" y1="0" x2="-32" y2="65" stroke="#ca8a04" stroke-width="1.2" stroke-dasharray="2,2" />
+                                            <line x1="0" y1="0" x2="32" y2="65" stroke="#ca8a04" stroke-width="1.2" stroke-dasharray="2,2" />
+                                            <path d="M -40,65 Q 0,80 40,65 Z" fill="url(#ironGrad)" stroke="#475569" stroke-width="1" />
+                                            <circle cx="0" cy="58" r="14" fill="rgba(239, 68, 68, 0.25)" stroke="#ef4444" stroke-width="1.5" />
+                                            <text x="0" y="62" text-anchor="middle" font-size="11" font-weight="900" fill="#f87171">⚓</text>
+                                            <text x="0" y="94" text-anchor="middle" font-size="9" font-weight="700" fill="#f87171" font-family="'Cinzel', serif">HALOKAT KUCHI</text>
+                                            <text id="rightPanScoreText" x="0" y="106" text-anchor="middle" font-size="11" font-weight="800" fill="#ef4444" font-family="'Space Mono', monospace">-0%</text>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Factors List (Cards) -->
+                        <div class="factors-list" id="factorsList"></div>
+                    </div>
+
+                    <!-- Tab 2: 1912 White Star Line Vintage Daguerreotype Dossier -->
+                    <div id="dossierTab" class="res-tab-pane">
+                        <div class="vintage-dossier-card" id="vintageDossierCard">
+                            <div class="dossier-watermark">BOARD OF TRADE • 1912</div>
+                            
+                            <div class="dossier-header">
+                                <div class="dossier-badge-row">
+                                    <span class="wsl-crown"><i class="fa-solid fa-crown gold-icon"></i> WHITE STAR LINE</span>
+                                    <span class="dossier-serial" id="dossierSerial">DOC. No. WSL-1912-7489</span>
+                                </div>
+                                <h3 class="dossier-main-title">PASSENGER IDENTIFICATION & INSPECTION CERTIFICATE</h3>
+                                <p class="dossier-sub-title">Royal & United States Mail Steamer "TITANIC" • Southampton Docks</p>
+                            </div>
+
+                            <div class="dossier-body">
+                                <!-- Left: Authentic 1912 Sepia Daguerreotype Portrait -->
+                                <div class="daguerreotype-box">
+                                    <div class="daguerreotype-frame">
+                                        <div class="photo-clip top-left"></div>
+                                        <div class="photo-clip top-right"></div>
+                                        <div class="photo-clip bottom-left"></div>
+                                        <div class="photo-clip bottom-right"></div>
+
+                                        <div class="daguerreotype-surface" id="daguerreotypeSurface">
+                                            <!-- SVG Portrait dynamically generated -->
+                                            <svg viewBox="0 0 140 160" class="vintage-avatar-svg" id="vintageAvatarSvg"></svg>
+                                            <div class="photo-grain-overlay"></div>
+                                        </div>
+                                    </div>
+                                    <span class="daguerreotype-caption">PORTRAIT • 10 APRIL 1912</span>
+                                </div>
+
+                                <!-- Right: Passenger Particulars -->
+                                <div class="dossier-details-grid">
+                                    <div class="dossier-field full-width">
+                                        <span class="dossier-label">FULL NAME / YO'LOVCHI ISMI:</span>
+                                        <span class="dossier-val-lg" id="dossierName">Mr. Abbos Aliyev</span>
+                                    </div>
+
+                                    <div class="dossier-field">
+                                        <span class="dossier-label">YEAR OF BIRTH / YOSHI:</span>
+                                        <span class="dossier-val" id="dossierBirth">1888 (24 yoshda)</span>
+                                    </div>
+
+                                    <div class="dossier-field">
+                                        <span class="dossier-label">CALLING / KASBI:</span>
+                                        <span class="dossier-val" id="dossierCalling">Gentleman / Merchant</span>
+                                    </div>
+
+                                    <div class="dossier-field">
+                                        <span class="dossier-label">PASSENGER CLASS:</span>
+                                        <span class="dossier-val highlight-gold" id="dossierClass">First Class (Lyuks)</span>
+                                    </div>
+
+                                    <div class="dossier-field">
+                                        <span class="dossier-label">BERTH & STATEROOM:</span>
+                                        <span class="dossier-val" id="dossierBerth">Deck C • Cabin C-52</span>
+                                    </div>
+
+                                    <div class="dossier-field">
+                                        <span class="dossier-label">PORT OF EMBARKATION:</span>
+                                        <span class="dossier-val" id="dossierPort">Southampton, England</span>
+                                    </div>
+
+                                    <div class="dossier-field">
+                                        <span class="dossier-label">DESTINATION:</span>
+                                        <span class="dossier-val">New York City, U.S.A.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dossier-footer">
+                                <!-- Official Embossed Red Wax Seal -->
+                                <div class="wax-seal-wrapper">
+                                    <div class="wax-seal" id="waxSeal">
+                                        <div class="wax-inner">
+                                            <i class="fa-solid fa-anchor"></i>
+                                            <span>R.M.S. TITANIC</span>
+                                            <span class="wax-year">1912</span>
+                                        </div>
+                                    </div>
+                                    <span class="seal-label">BOARD OF TRADE OFFICIAL STAMP</span>
+                                </div>
+
+                                <!-- Dynamic Fate Rubber Stamp (SURVIVOR or PERISHED) -->
+                                <div class="verdict-rubber-stamp" id="dossierFateStamp">
+                                    <span class="stamp-outer-ring">
+                                        <span class="stamp-text" id="dossierStampText">SURVIVOR // QUTQARILDI</span>
+                                        <span class="stamp-date">15 APR 1912</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Download Dossier Button -->
+                        <div class="dossier-action-bar">
+                            <button type="button" id="downloadDossierPngBtn" class="btn-royal btn-sm">
+                                <i class="fa-solid fa-camera"></i> 1912 Guvohnomasini Rasm Qilib Saqlash (PNG)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: What-If Scenarios -->
+                    <div id="whatIfTab" class="res-tab-pane">
+                        <p class="tab-explainer">Quyidagi sharoitlar o'zgarganda tirik qolish ehtimolingiz qanday o'zgarishi hisoblangan:</p>
+                        <div class="what-if-grid" id="whatIfList"></div>
+                    </div>
+
+                    <!-- Tab 3: Historical Doppelgänger Match -->
+                    <div id="twinTab" class="res-tab-pane">
+                        <div class="twin-card" id="twinCard">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Tab 4: Survival Timeline -->
+                    <div id="timelineTab" class="res-tab-pane">
+                        <div class="timeline-stepper" id="timelineList"></div>
+                    </div>
+
+                    <!-- Tab 5: Marconi Wireless Telegram -->
+                    <div id="telegramTab" class="res-tab-pane">
+                        <div class="marconi-telegram-box" id="marconiBox">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="result-actions">
+                        <button id="recalculateBtn" class="btn-secondary">
+                            <i class="fa-solid fa-rotate-left"></i> Boshqa ma'lumotlar bilan sinash
+                        </button>
+                        <button id="printTicketBtn" class="btn-royal-outline">
+                            <i class="fa-solid fa-print"></i> Chiptani Chop Etish / Saqlash
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Deck Cutaway Map Section -->
+    <section id="deck-map" class="deck-map-section">
+        <div class="section-title-wrap">
+            <span class="badge-vintage"><i class="fa-solid fa-ship"></i> TITANIC TUZILISHI</span>
+            <h2 class="section-heading">Kema Palubalari va Evakuatsiya Xaritasi</h2>
+            <p class="section-lead">
+                Titanicdagi har bir qavat va kayutaning qutqaruv qayiqlari joylashgan yuqori palubaga nisbatan joylashuvi.
+                Tanlagan toifangiz qizil/oltin nuqta bilan belgilanadi.
+            </p>
+        </div>
+
+        <div class="glass-card deck-card">
+            <div class="deck-container">
+                <!-- Boat Deck -->
+                <div class="deck-layer boat-deck" id="deckBoat">
+                    <div class="deck-thumb-wrap">
+                        <img src="{{ url_for('static', filename='images/titanic_gym.jpg') }}" alt="Boat Deck" class="deck-thumb-img">
+                    </div>
+                    <div class="deck-meta">
+                        <span class="deck-title">BOAT DECK (Qayiq Palubasi)</span>
+                        <span class="deck-desc">20 ta qutqaruv qayig'i, kapitan ko'prigi va ofitserlar xonalari</span>
+                    </div>
+                    <div class="deck-badge-status">Qutqaruv zonasi (0 daqiqa)</div>
+                </div>
+
+                <!-- Deck A-C -->
+                <div class="deck-layer deck-first active" id="deckFirst">
+                    <div class="deck-thumb-wrap">
+                        <img src="{{ url_for('static', filename='images/titanic_grand_staircase_4k.jpg') }}" alt="1-Class Grand Staircase" class="deck-thumb-img">
+                    </div>
+                    <div class="deck-meta">
+                        <span class="deck-title">DECK A - C (1-Klass Lyuks Oromgohlari)</span>
+                        <span class="deck-desc">Hashamatli kayutalar, "Grand Staircase" zinalari, yuqori palubaga to'g'ridan-to'g'ri chiqish</span>
+                    </div>
+                    <div class="deck-badge-status" id="deckFirstBadge">📍 Sizning palubangiz (Evakuatsiya: ~2 daqiqa)</div>
+                </div>
+
+                <!-- Deck D-E -->
+                <div class="deck-layer deck-second" id="deckSecond">
+                    <div class="deck-thumb-wrap">
+                        <img src="{{ url_for('static', filename='images/titanic_southampton_1912.jpg') }}" alt="2-Class Decks" class="deck-thumb-img">
+                    </div>
+                    <div class="deck-meta">
+                        <span class="deck-title">DECK D - E (2-Klass va Oshxonalar)</span>
+                        <span class="deck-desc">O'rta qatlam zallari, 2-klass yo'lovchi kayutalari va kutubxona</span>
+                    </div>
+                    <div class="deck-badge-status" id="deckSecondBadge">Evakuatsiya: ~8 daqiqa</div>
+                </div>
+
+                <!-- Deck F-G -->
+                <div class="deck-layer deck-third" id="deckThird">
+                    <div class="deck-thumb-wrap">
+                        <img src="{{ url_for('static', filename='images/titanic_wreck_bow.jpg') }}" alt="3-Class Decks" class="deck-thumb-img">
+                    </div>
+                    <div class="deck-meta">
+                        <span class="deck-title">DECK F - G & BOILER ROOM (3-Klass va Qozonxonalar)</span>
+                        <span class="deck-desc">Steerage muhojirlar yotoqxonalari, labirintsimon yo'laklar, yuk bo'limi</span>
+                    </div>
+                    <div class="deck-badge-status" id="deckThirdBadge">Evakuatsiya: ~25 daqiqa (Panjaralar bilan to'silgan)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Laboratory & GridSearchCV Section -->
+    <section id="ai-lab" class="ai-lab-section">
+        <div class="section-title-wrap">
+            <span class="badge-vintage"><i class="fa-solid fa-microchip"></i> MACHINE LEARNING LABORATORY</span>
+            <h2 class="section-heading">GridSearchCV Yordamida Eng Yaxshi Algoritmni Tanlash</h2>
+            <p class="section-lead">
+                Titanic datasetidagi 891 ta yo'lovchi ma'lumoti 5 xil klassifikatsiya algoritmi orqali 
+                <strong>GridSearchCV (5-Fold Stratified K-Fold)</strong> bilan giperparametrlari o'rganildi va solishtirildi.
+            </p>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card highlight-gold">
+                <div class="kpi-icon"><i class="fa-solid fa-trophy"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Eng Yaxshi Algoritm</span>
+                    <h3 class="kpi-value" id="kpiBestModel">Logistic Regression</h3>
+                    <span class="kpi-sub">Giperparametrlari optimallashtirilgan</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fa-solid fa-bullseye"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Test To'plamida Aniqlik</span>
+                    <h3 class="kpi-value" id="kpiAccuracy">84.92%</h3>
+                    <span class="kpi-sub">86.56% ROC-AUC ko'rsatkichi</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fa-solid fa-users"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Jami Dataset Hajmi</span>
+                    <h3 class="kpi-value">891 yo'lovchi</h3>
+                    <span class="kpi-sub">342 omon qolgan (38.38%)</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fa-solid fa-layer-group"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Kross-Validatsiya</span>
+                    <h3 class="kpi-value">5-Fold Stratified</h3>
+                    <span class="kpi-sub">Balanslashgan k-fold CV</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Comparison Charts -->
+        <div class="charts-grid">
+            <div class="glass-card chart-card">
+                <h3><i class="fa-solid fa-chart-column gold-icon"></i> Algoritmlar Aniqligi (Accuracy) Solishtiruvi</h3>
+                <div class="chart-wrapper">
+                    <canvas id="accuracyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="glass-card chart-card">
+                <h3><i class="fa-solid fa-chart-line gold-icon"></i> ROC-AUC va F1-Score Ko'rsatkichlari</h3>
+                <div class="chart-wrapper">
+                    <canvas id="rocChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Comparison Detailed Table -->
+        <div class="glass-card table-card">
+            <div class="table-header">
+                <h3><i class="fa-solid fa-table-list gold-icon"></i> GridSearchCV Natijalari va Optimal Giperparametrlar</h3>
+                <span class="table-note">* Modellar test to'plamidagi aniqlik bo'yicha saralangan</span>
+            </div>
+            <div class="table-responsive">
+                <table class="benchmark-table" id="benchmarkTable">
+                    <thead>
+                        <tr>
+                            <th>Algoritm</th>
+                            <th>CV Aniqligi</th>
+                            <th>Test Aniqligi</th>
+                            <th>Precision</th>
+                            <th>Recall</th>
+                            <th>F1-Score</th>
+                            <th>ROC-AUC</th>
+                            <th>Eng Yaxshi Giperparametrlar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="benchmarkTableBody">
+                        <!-- Loaded dynamically from /api/models-info -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Historical Insights Section -->
+    <section id="history" class="history-section">
+        <div class="section-title-wrap">
+            <span class="badge-vintage"><i class="fa-solid fa-book-open"></i> TARIXIY VOQELIK</span>
+            <h2 class="section-heading">Nima Uchun Ushbu Omillar Muhim Bo'lgan?</h2>
+        </div>
+
+        <div class="history-grid">
+            <div class="glass-card history-card">
+                <div class="h-icon"><i class="fa-solid fa-person-dress"></i></div>
+                <h4>"Ayollar va bolalar avval"</h4>
+                <p>
+                    Kapitan Smitning buyrug'i bilan qutqaruv qayiqlariga avvalo ayollar va yosh bolalar joylashtirilgan. 
+                    Natijada ayollarning 74.2% qismi, erkaklarning esa bor-yo'g'i 18.9% qismi omon qolgan.
+                </p>
+            </div>
+
+            <div class="glass-card history-card">
+                <div class="h-icon"><i class="fa-solid fa-crown"></i></div>
+                <h4>Ijtimoiy Tabaqalanish (Klass)</h4>
+                <p>
+                    1-klass yo'lovchilarining 62% dan ortig'i qutqarilgan bo'lsa, 3-klass (Steerage)dagilarning 
+                    faqat 24% tirik qolgan. Kemaning arxitekturasi va quyi bo'limdagi to'siqlar bunga sabab bo'lgan.
+                </p>
+            </div>
+
+            <div class="glass-card history-card">
+                <div class="h-icon"><i class="fa-solid fa-life-ring"></i></div>
+                <h4>Qutqaruv Qayiqlari Yetishmovchiligi</h4>
+                <p>
+                    Kema bortida 2,224 nafar yo'lovchi va ekipaj a'zosi bo'lgan, ammo qutqaruv qayiqlari 
+                    faqat 1,178 kishiga mo'ljallangan edi. Aynan shu sababli xavfsizlik qoidalari butun dunyoda tubdan o'zgardi.
+                </p>
+            </div>
+        </div>
+
+        <!-- 4K Archival Museum Gallery -->
+        <div class="gallery-wrapper">
+            <div class="gallery-header">
+                <h3><i class="fa-solid fa-camera-retro gold-icon"></i> 4K Tarixiy Arxiv Galereyasi (1912-yilgi Asl Suratlar)</h3>
+                <p>Muzey sifatidagi haqiqiy tarixiy fotosuratlar. Katta hajmda ko'rish uchun rasm ustiga bosing:</p>
+            </div>
+
+            <div class="gallery-grid">
+                <!-- Photo 1: Departure 4K -->
+                <div class="gallery-item" data-full="{{ url_for('static', filename='images/titanic_hero_4k.jpg') }}" data-title="RMS Titanic — Nyu-York tomon birinchi va so'nggi safar (1912-yil aprel)">
+                    <div class="gallery-thumb-box">
+                        <img src="{{ url_for('static', filename='images/titanic_hero_4k.jpg') }}" alt="RMS Titanic 1912" loading="lazy">
+                        <div class="gallery-badge-4k"><i class="fa-solid fa-expand"></i> 4K ULTRA HD</div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h4>RMS Titanic Atlantika Bag'rida</h4>
+                        <span>5000x3677 px • Asl fotosurat (1912-yil aprel)</span>
+                    </div>
+                </div>
+
+                <!-- Photo 2: Grand Staircase 4K -->
+                <div class="gallery-item" data-full="{{ url_for('static', filename='images/titanic_grand_staircase_4k.jpg') }}" data-title="1-Klass Grand Staircase — Muhtasham marmar va eman zinalari (William H. Rau, 1911)">
+                    <div class="gallery-thumb-box">
+                        <img src="{{ url_for('static', filename='images/titanic_grand_staircase_4k.jpg') }}" alt="Titanic Grand Staircase" loading="lazy">
+                        <div class="gallery-badge-4k"><i class="fa-solid fa-expand"></i> 4K ULTRA HD</div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h4>Grand Staircase Zinalari</h4>
+                        <span>3888x3183 px • Harland & Wolff arxivi</span>
+                    </div>
+                </div>
+
+                <!-- Photo 3: Color Exhibition Replica 6K -->
+                <div class="gallery-item" data-full="{{ url_for('static', filename='images/titanic_staircase_color_4k.jpg') }}" data-title="Titanik Grand Staircase Zinalarining 4K Rangli Muzey Ko'rinishi">
+                    <div class="gallery-thumb-box">
+                        <img src="{{ url_for('static', filename='images/titanic_staircase_color_4k.jpg') }}" alt="Titanic Staircase Color 4K" loading="lazy">
+                        <div class="gallery-badge-4k"><i class="fa-solid fa-expand"></i> 6K RESOLUTION</div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h4>Bronza Farishta va Lyustra</h4>
+                        <span>6016x4000 px • Boston Artifact Exhibition</span>
+                    </div>
+                </div>
+
+                <!-- Photo 4: Southampton Dock 2K -->
+                <div class="gallery-item" data-full="{{ url_for('static', filename='images/titanic_southampton_1912.jpg') }}" data-title="RMS Titanic Southampton portida, 1912-yil 9-aprel (safardan bir kun avval)">
+                    <div class="gallery-thumb-box">
+                        <img src="{{ url_for('static', filename='images/titanic_southampton_1912.jpg') }}" alt="Titanic Southampton 1912" loading="lazy">
+                        <div class="gallery-badge-4k"><i class="fa-solid fa-expand"></i> 2K ARCHIVE</div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h4>Southampton Portidagi Oxirgi Kun</h4>
+                        <span>1977x1149 px • 1912-yil 9-aprel</span>
+                    </div>
+                </div>
+
+                <!-- Photo 5: The Fatal Iceberg -->
+                <div class="gallery-item" data-full="{{ url_for('static', filename='images/titanic_iceberg.jpg') }}" data-title="1912-yil 15-aprelda suratga olingan to'qnashuv aysbergi (tagida qizil kema bo'yog'i izlari bilan topilgan)">
+                    <div class="gallery-thumb-box">
+                        <img src="{{ url_for('static', filename='images/titanic_iceberg.jpg') }}" alt="Fatal Iceberg April 15 1912" loading="lazy">
+                        <div class="gallery-badge-4k"><i class="fa-solid fa-expand"></i> HISTORIC 1912</div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h4>To'qnashuv Aysbergi</h4>
+                        <span>Prinz Adalbert kemasi matroslari tomonidan olingan</span>
+                    </div>
+                </div>
+
+                <!-- Photo 6: Wreckage Bow Deep Sea -->
+                <div class="gallery-item" data-full="{{ url_for('static', filename='images/titanic_wreck_bow.jpg') }}" data-title="Okean tubidagi 3,800 metr chuqurlikdagi Titanikning burun qismi (NOAA / Robert Ballard ekspeditsiyasi)">
+                    <div class="gallery-thumb-box">
+                        <img src="{{ url_for('static', filename='images/titanic_wreck_bow.jpg') }}" alt="Titanic Wreck Bow Underwater" loading="lazy">
+                        <div class="gallery-badge-4k"><i class="fa-solid fa-expand"></i> DEEP SEA 4K</div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h4>3,800m Chuqurlikdagi Titanik Buruni</h4>
+                        <span>Atlantika qa'ridagi afsona (NOAA Expedition)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fullscreen 4K Lightbox Modal -->
+        <div class="photo-lightbox-modal hidden" id="photoLightboxModal">
+            <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+            <div class="lightbox-dialog">
+                <button type="button" class="lightbox-close-btn" id="lightboxCloseBtn">&times;</button>
+                <div class="lightbox-img-wrap">
+                    <img id="lightboxImg" src="" alt="Titanic 4K Archival Photo">
+                </div>
+                <div class="lightbox-caption-box">
+                    <h4 id="lightboxTitle"></h4>
+                    <a id="lightboxDownloadBtn" href="" download class="btn-royal btn-sm">
+                        <i class="fa-solid fa-download"></i> Asl 4K Rasmni Yuklash
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fa-solid fa-anchor gold-icon"></i>
+                <span>RMS TITANIC • DATA SCIENCE LOYIHASI</span>
+            </div>
+            <p>Ushbu platforma Titanic datasetini tahlil qilish, GridSearchCV optimallashtirish va interaktiv veb-tajriba yaratish uchun ishlab chiqildi.</p>
+            <div class="footer-tags">
+                <span class="tag">Scikit-Learn</span>
+                <span class="tag">GridSearchCV</span>
+                <span class="tag">Flask</span>
+                <span class="tag">Chart.js</span>
+                <span class="tag">Explainable AI</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Script -->
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=titanic_v2_4k_ultra"></script>
+</body>
+</html>

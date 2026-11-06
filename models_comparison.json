@@ -1,0 +1,85 @@
+{
+    "best_algorithm": "Logistic Regression",
+    "best_metric_score": 84.78,
+    "dataset_info": {
+        "total_samples": 891,
+        "train_samples": 712,
+        "test_samples": 179,
+        "survived_count": 342,
+        "fatalities_count": 549,
+        "overall_survival_rate": 38.38
+    },
+    "models": [
+        {
+            "algorithm": "Logistic Regression",
+            "best_cv_accuracy": 82.87,
+            "test_accuracy": 84.92,
+            "test_precision": 81.82,
+            "test_recall": 78.26,
+            "test_f1": 80.0,
+            "test_roc_auc": 86.56,
+            "best_params": {
+                "C": 1.0,
+                "solver": "lbfgs"
+            }
+        },
+        {
+            "algorithm": "Support Vector Machine (SVC)",
+            "best_cv_accuracy": 82.87,
+            "test_accuracy": 84.36,
+            "test_precision": 82.54,
+            "test_recall": 75.36,
+            "test_f1": 78.79,
+            "test_roc_auc": 84.8,
+            "best_params": {
+                "C": 1.0,
+                "gamma": "auto",
+                "kernel": "rbf"
+            }
+        },
+        {
+            "algorithm": "Random Forest",
+            "best_cv_accuracy": 83.71,
+            "test_accuracy": 80.45,
+            "test_precision": 79.31,
+            "test_recall": 66.67,
+            "test_f1": 72.44,
+            "test_roc_auc": 84.01,
+            "best_params": {
+                "max_depth": 10,
+                "min_samples_leaf": 1,
+                "min_samples_split": 5,
+                "n_estimators": 200
+            }
+        },
+        {
+            "algorithm": "Gradient Boosting",
+            "best_cv_accuracy": 83.57,
+            "test_accuracy": 78.77,
+            "test_precision": 82.98,
+            "test_recall": 56.52,
+            "test_f1": 67.24,
+            "test_roc_auc": 84.84,
+            "best_params": {
+                "learning_rate": 0.01,
+                "max_depth": 5,
+                "n_estimators": 50,
+                "subsample": 0.8
+            }
+        },
+        {
+            "algorithm": "K-Nearest Neighbors (KNN)",
+            "best_cv_accuracy": 81.75,
+            "test_accuracy": 78.77,
+            "test_precision": 75.41,
+            "test_recall": 66.67,
+            "test_f1": 70.77,
+            "test_roc_auc": 82.09,
+            "best_params": {
+                "metric": "manhattan",
+                "n_neighbors": 5,
+                "weights": "uniform"
+            }
+        }
+    ]
+}
